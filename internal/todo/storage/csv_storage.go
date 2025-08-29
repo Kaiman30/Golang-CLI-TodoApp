@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"os"
 	"strconv"
+	"todo-app/internal/todo/model"
 )
 
-func LoadCSV(filename string) ([]Task, error) {
+func LoadCSV(filename string) ([]model.Task, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -20,7 +21,7 @@ func LoadCSV(filename string) ([]Task, error) {
 		return nil, err
 	}
 
-	var tasks []Task
+	var tasks []model.Task
 	// Пропускаем заголовок
 	for i, record := range records {
 		if i == 0 {
@@ -32,7 +33,7 @@ func LoadCSV(filename string) ([]Task, error) {
 
 		id, _ := strconv.Atoi(record[0])
 		done, _ := strconv.ParseBool(record[2])
-		tasks = append(tasks, Task{
+		tasks = append(tasks, model.Task{
 			ID:          id,
 			Description: record[1],
 			Done:        done,
@@ -42,7 +43,7 @@ func LoadCSV(filename string) ([]Task, error) {
 	return tasks, nil
 }
 
-func SaveCSV(filename string, tasks []Task) error {
+func SaveCSV(filename string, tasks []model.Task) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err

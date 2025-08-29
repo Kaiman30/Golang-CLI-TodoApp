@@ -1,5 +1,5 @@
 // internal/todo/task.go
-package storage
+package model
 
 type Task struct {
 	ID          int    `json:"id"`

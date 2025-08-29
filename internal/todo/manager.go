@@ -7,11 +7,12 @@ import (
 	"os"
 	"sync"
 
+	"todo-app/internal/todo/model"
 	"todo-app/internal/todo/storage"
 )
 
 type Manager struct {
-	Tasks  []storage.Task
+	Tasks  []model.Task
 	NextID int
 	file   string
 	mu     sync.Mutex
@@ -52,7 +53,7 @@ func (m *Manager) Add(desc string) error {
 	if desc == "" {
 		return errors.New("описание задачи не может быть пустым")
 	}
-	task := storage.Task{
+	task := model.Task{
 		ID:          m.NextID,
 		Description: desc,
 		Done:        false,
@@ -62,8 +63,8 @@ func (m *Manager) Add(desc string) error {
 	return m.Save()
 }
 
-func (m *Manager) List(filter string) ([]storage.Task, error) {
-	var result []storage.Task
+func (m *Manager) List(filter string) ([]model.Task, error) {
+	var result []model.Task
 	switch filter {
 	case "all":
 		result = m.Tasks
