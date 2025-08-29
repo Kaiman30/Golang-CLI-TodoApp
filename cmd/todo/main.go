@@ -4,10 +4,23 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"todo-app/internal/todo"
 	"todo-app/internal/todo/storage"
+
+	"github.com/fatih/color"
 )
+
+func truncate(text string, max int) string {
+	if len(text) <= max {
+		return text
+	}
+	if max <= 3 {
+		return strings.Repeat(".", max)
+	}
+	return text[:max-3] + "..."
+}
 
 func main() {
 	// Определение команд
@@ -42,7 +55,7 @@ func main() {
 		}
 		manager := todo.NewManager("tasks.json")
 		if err := manager.Add(*desc); err != nil {
-			fmt.Println("Ошибка добавления задачи:", err)
+			color.Red("❌ Ошибка при добавлении задачи: %v", err)
 			os.Exit(1)
 		}
 		fmt.Println("Задача добавлена")
@@ -52,16 +65,45 @@ func main() {
 		manager := todo.NewManager("tasks.json")
 		tasks, err := manager.List(*filter)
 		if err != nil {
-			fmt.Println("Ошибка при получении списка:", err)
+			color.Red("❌ Ошибка при получении списка: %v", err)
 			os.Exit(1)
 		}
-		for _, t := range tasks {
-			status := "pending"
-			if t.Done {
-				status = "done"
-			}
-			fmt.Printf("[%d] %s [%s]\n", t.ID, t.Description, status)
+
+		if len(tasks) == 0 {
+			fmt.Println("Задачи не найдены.")
+			break
 		}
+
+		//	Заголовок таблицы
+		fmt.Println()
+		fmt.Printf("%-4s %-40s %s\n", "ID", "Описание", "Статус")
+		fmt.Println(strings.Repeat("─", 70))
+
+		// Вывод каждой задачи
+		for _, t := range tasks {
+			var status string
+			var colorFunc func(format string, a ...interface{}) string
+
+			if t.Done {
+				status = "✓ Выполнена"
+				colorFunc = color.GreenString
+			} else {
+				status = "• В работе"
+				colorFunc = color.YellowString
+			}
+
+			fmt.Printf("%-4d %-40s %s\n",
+				t.ID,
+				truncate(t.Description, 40),
+				colorFunc("%s", status),
+			)
+			// status := "pending"
+			// if t.Done {
+			// 	status = "done"
+			// }
+			// fmt.Printf("[%d] %s [%s]\n", t.ID, t.Description, status)
+		}
+		fmt.Println()
 
 	case "complete":
 		completeCmd.Parse(os.Args[2:])
@@ -71,10 +113,10 @@ func main() {
 		}
 		manager := todo.NewManager("tasks.json")
 		if err := manager.Complete(*id); err != nil {
-			fmt.Println("Ошибка при завершении задачи:", err)
+			color.Red("❌ Ошибка при завершении задачи:", err)
 			os.Exit(1)
 		}
-		fmt.Println("Задача отмечена как выполненная")
+		color.Green("✓ Задача отмечена как выполненная")
 
 	case "delete":
 		deleteCmd.Parse(os.Args[2:])
