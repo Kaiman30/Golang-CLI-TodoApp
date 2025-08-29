@@ -35,6 +35,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "add":
+		addCmd.Parse(os.Args[2:])
 		if *desc == "" {
 			fmt.Println("Флаг --desc обязателен")
 			os.Exit(1)
